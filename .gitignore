@@ -18,3 +18,14 @@ ml/*.csv
 # OS
 .DS_Store
 Thumbs.db
+# Python cache
+__pycache__/
+*.pyc
+
+# Trained models
+*.pkl
+backend/app/models/
+
+# Runtime data
+backend/app/blockchain/ledger.json
+backend/app/feedback/feedback.csv
