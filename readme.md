@@ -55,14 +55,13 @@ ml/data/
 You may download equivalent datasets from:
 - Kaggle Fake News Dataset
 - ISOT Fake News Dataset
-
 After placing datasets, run:
+
 ```bash
 cd ml
 python retrain.py
 python train.py
-
-
+```
 
 ## 📂 Project Structure
 FakeNewsDetection/
@@ -84,3 +83,7 @@ FakeNewsDetection/
 │ └── package.json
 │
 └── README.md
+
+
+
+
