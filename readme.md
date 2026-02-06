@@ -40,6 +40,47 @@ This project is designed to simulate how real-world misinformation detection sys
 - Incremental retraining support
 
 ---
+## 📊 Dataset Information
+
+Due to GitHub file size limits, datasets are not included in this repository.
+
+### Required files:
+- Fake.csv
+- True.csv
+
+Place them inside:
+ml/data/
+
+
+You may download equivalent datasets from:
+- Kaggle Fake News Dataset
+- ISOT Fake News Dataset
+
+After placing datasets, run:
+```bash
+cd ml
+python retrain.py
+python train.py
+
+
 
 ## 📂 Project Structure
-
+FakeNewsDetection/
+│
+├── ml/
+│ ├── data/
+│ ├── train.py
+│ ├── retrain.py
+│
+├── backend/
+│ ├── app/
+│ │ ├── api/
+│ │ ├── services/
+│ │ ├── models/
+│ │ └── main.py
+│
+├── frontend/
+│ ├── src/
+│ └── package.json
+│
+└── README.md
