@@ -1,0 +1,7 @@
+{
+  "current_model": "model_v2.pkl",
+  "trained_on": "2026-02-06",
+  "accuracy": 0.9862,
+  "f1_score": 0.9856,
+  "dataset": "retrain_ready.csv"
+}

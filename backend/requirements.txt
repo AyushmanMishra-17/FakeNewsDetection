@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+pydantic
+joblib
+numpy
+pandas
+scikit-learn
+nltk
+python-multipart
+newspaper3k
+beautifulsoup4
+lxml
+PyPDF2
+transformers
+torch

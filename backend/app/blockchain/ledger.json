@@ -1,0 +1,91 @@
+[
+  {
+    "index": 0,
+    "timestamp": 1770232033.4214146,
+    "data": "Genesis",
+    "previous_hash": "0",
+    "hash": "959ca6c4acabb05188117f1112c5a1658c39865649c62b6f0d379d975af5c9f2"
+  },
+  {
+    "index": 1,
+    "timestamp": 1770232324.066409,
+    "data": {
+      "prediction": "Fake",
+      "confidence": 94.94,
+      "credibility_score": 5.06
+    },
+    "previous_hash": "959ca6c4acabb05188117f1112c5a1658c39865649c62b6f0d379d975af5c9f2",
+    "hash": "d08f10bfb07447bddd7be197d628ee5402f5ab9178679a198fa4cdd04f1ad393"
+  },
+  {
+    "index": 2,
+    "timestamp": 1770232326.568846,
+    "data": {
+      "prediction": "Fake",
+      "confidence": 94.94,
+      "credibility_score": 5.06
+    },
+    "previous_hash": "d08f10bfb07447bddd7be197d628ee5402f5ab9178679a198fa4cdd04f1ad393",
+    "hash": "928af678a78f61601a1578088134b8789574bb31d82ae806252a6ffda92f872b"
+  },
+  {
+    "index": 3,
+    "timestamp": 1770368396.3678277,
+    "data": {
+      "prediction": "Fake",
+      "confidence": 66.12,
+      "credibility_score": 51.32,
+      "source_score": 92
+    },
+    "previous_hash": "928af678a78f61601a1578088134b8789574bb31d82ae806252a6ffda92f872b",
+    "hash": "4edb6897c8b2878c1c599541a8a14d0ce737b67b3966b411a828c6d997839c3d"
+  },
+  {
+    "index": 4,
+    "timestamp": 1770368415.6023304,
+    "data": {
+      "prediction": "Fake",
+      "confidence": 66.12,
+      "credibility_score": 51.32,
+      "source_score": 92
+    },
+    "previous_hash": "4edb6897c8b2878c1c599541a8a14d0ce737b67b3966b411a828c6d997839c3d",
+    "hash": "e015d1086c3b5cc6893c9719cdbed8da8f69b77ddbecc8a1f3098d845000574d"
+  },
+  {
+    "index": 5,
+    "timestamp": 1770368447.9220486,
+    "data": {
+      "prediction": "Fake",
+      "confidence": 66.12,
+      "credibility_score": 51.32,
+      "source_score": 92
+    },
+    "previous_hash": "e015d1086c3b5cc6893c9719cdbed8da8f69b77ddbecc8a1f3098d845000574d",
+    "hash": "cefe4d447e296e741ce62c20a7ca839b641871f685150a1af9756936e1d20204"
+  },
+  {
+    "index": 6,
+    "timestamp": 1770368699.5252645,
+    "data": {
+      "prediction": "Fake",
+      "confidence": 66.12,
+      "credibility_score": 51.32,
+      "source_score": 92
+    },
+    "previous_hash": "cefe4d447e296e741ce62c20a7ca839b641871f685150a1af9756936e1d20204",
+    "hash": "185413269f201dc467c3578bda70ba881262a76be2452ee8adfce801cc80cd5e"
+  },
+  {
+    "index": 7,
+    "timestamp": 1770368718.3042932,
+    "data": {
+      "prediction": "Fake",
+      "confidence": 84.7,
+      "credibility_score": 38.31,
+      "source_score": 92
+    },
+    "previous_hash": "185413269f201dc467c3578bda70ba881262a76be2452ee8adfce801cc80cd5e",
+    "hash": "cfc2c3fa78b906d16f2ccb41718c5c3c6c1f66f04acdd73f7605ca73351570bf"
+  }
+]
