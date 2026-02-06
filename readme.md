@@ -62,7 +62,7 @@ cd ml
 python retrain.py
 python train.py
 ```
-
+```bash
 ## 📂 Project Structure
 FakeNewsDetection/
 │
@@ -83,7 +83,7 @@ FakeNewsDetection/
 │ └── package.json
 │
 └── README.md
-
+```
 
 
 
