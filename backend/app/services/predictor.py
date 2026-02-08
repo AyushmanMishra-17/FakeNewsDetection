@@ -1,70 +1,59 @@
 import os
-import joblib
 import json
-import torch
-import nltk
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from app.services.credibility import calculate_credibility_score as credibility_score
+import joblib
+import requests
 
-nltk.download("stopwords", quiet=True)
+from app.services.explainability import explain_prediction
+from app.services.credibility import calculate_credibility
+from app.services.source_credibility import source_score
+from app.utils.preprocess import preprocess_text
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, "models")
+MODEL_DIR = "models"
+MODEL_PATH = f"{MODEL_DIR}/model.pkl"
+META_PATH = f"{MODEL_DIR}/metadata.json"
 
-MODEL_PATH = os.path.join(MODEL_DIR, "model.pkl")
-META_PATH = os.path.join(MODEL_DIR, "metadata.json")
+# 🔗 Replace this with your actual model URL later
+MODEL_URL = "https://YOUR_MODEL_HOST_URL/model.pkl"
 
-_model = None
-_metadata = None
-_tokenizer = None
-_transformer = None
+os.makedirs(MODEL_DIR, exist_ok=True)
 
+def download_model():
+    if not os.path.exists(MODEL_PATH):
+        print("⬇️ Downloading ML model...")
+        r = requests.get(MODEL_URL, stream=True)
+        with open(MODEL_PATH, "wb") as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
+        print("✅ Model downloaded")
 
-def load_assets():
-    global _model, _metadata, _tokenizer, _transformer
+download_model()
 
-    if _model is None:
-        _model = joblib.load(MODEL_PATH)
+model = joblib.load(MODEL_PATH)
 
-    if _metadata is None:
-        with open(META_PATH, "r") as f:
-            _metadata = json.load(f)
+# Metadata fallback (safe)
+if os.path.exists(META_PATH):
+    with open(META_PATH) as f:
+        metadata = json.load(f)
+else:
+    metadata = {"version": "cloud"}
 
-    if _tokenizer is None or _transformer is None:
-        model_name = _metadata.get(
-            "transformer_model",
-            "distilbert-base-uncased-finetuned-sst-2-english"
-        )
-        _tokenizer = AutoTokenizer.from_pretrained(model_name)
-        _transformer = AutoModelForSequenceClassification.from_pretrained(
-            model_name,
-            torch_dtype=torch.float32,
-            device_map="cpu"
-        )
+def predict_news(text: str, source_url: str | None = None):
+    clean = preprocess_text(text)
+    pred = model.predict([clean])[0]
+    prob = model.predict_proba([clean])[0].max() * 100
 
+    label = "Real" if pred == 1 else "Fake"
 
-def predict_news(text: str, source_url: str = None):
-    load_assets()
+    credibility = calculate_credibility(prob, label)
+    explanation = explain_prediction(model, clean)
 
-    inputs = _tokenizer(
-        text[:512],
-        truncation=True,
-        padding=True,
-        return_tensors="pt"
-    )
-
-    with torch.no_grad():
-        outputs = _transformer(**inputs)
-        probs = torch.softmax(outputs.logits, dim=1)
-        confidence, label = torch.max(probs, dim=1)
-
-    prediction = _metadata["label_map"].get(str(label.item()), "Unknown")
-
-    confidence_pct = round(confidence.item() * 100, 2)
+    source = source_score(source_url) if source_url else None
 
     return {
-        "prediction": prediction,
-        "confidence": confidence_pct,
-        "credibility_score": credibility_score(confidence_pct, prediction),
-        "source_url": source_url
+        "prediction": label,
+        "confidence": round(prob, 2),
+        "credibility_score": credibility,
+        "source_score": source,
+        "explanation": explanation,
+        "model_version": metadata.get("version", "unknown")
     }
