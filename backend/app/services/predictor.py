@@ -1,42 +1,68 @@
-import json, joblib
-from app.services.credibility import calculate_credibility
-from app.services.source_credibility import source_credibility_score
-from app.services.explainability import explain_prediction
-from app.blockchain.blockchain import Blockchain
+import os
+import json
+import joblib
+import numpy as np
 
-with open("app/models/metadata.json") as f:
+from app.utils.preprocess import clean_text
+from app.services.credibility import credibility_score
+from app.services.explainability import explain_prediction
+from app.services.source_credibility import get_source_score
+
+# -------------------------------------------------
+# Resolve BASE directory safely (CRITICAL FIX)
+# -------------------------------------------------
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+METADATA_PATH = os.path.join(MODELS_DIR, "metadata.json")
+
+# -------------------------------------------------
+# Load metadata safely
+# -------------------------------------------------
+if not os.path.exists(METADATA_PATH):
+    raise FileNotFoundError(
+        f"metadata.json not found at {METADATA_PATH}. "
+        "Make sure models are committed or mounted correctly."
+    )
+
+with open(METADATA_PATH, "r") as f:
     meta = json.load(f)
 
-model = joblib.load(f"app/models/{meta['current_model']}")
-bc = Blockchain()
+MODEL_PATH = os.path.join(MODELS_DIR, meta["current_model"])
 
-def predict_news(text, source_url=None):
-    probs = model.predict_proba([text])[0]
-    pred = model.predict([text])[0]
+if not os.path.exists(MODEL_PATH):
+    raise FileNotFoundError(
+        f"Model file not found at {MODEL_PATH}. "
+        "Train the model or update metadata.json."
+    )
 
-    prediction = "Real" if pred == 1 else "Fake"
-    confidence = round(max(probs) * 100, 2)
+# -------------------------------------------------
+# Load ML model
+# -------------------------------------------------
+model = joblib.load(MODEL_PATH)
 
-    src_score = source_credibility_score(source_url)
-    credibility = calculate_credibility(confidence, prediction)
+# -------------------------------------------------
+# Prediction function
+# -------------------------------------------------
+def predict_news(text: str, source_url: str | None = None):
+    cleaned = clean_text(text)
 
-    if src_score:
-        credibility = round((credibility * 0.7 + src_score * 0.3), 2)
+    prob = model.predict_proba([cleaned])[0]
+    prediction = int(np.argmax(prob))
+    confidence = float(np.max(prob))
 
-    explanation = explain_prediction(model, text)
+    label = "REAL" if prediction == 1 else "FAKE"
 
-    block = bc.add_block({
-        "prediction": prediction,
-        "confidence": confidence,
-        "credibility_score": credibility,
-        "source_score": src_score,
-    })
+    credibility = credibility_score(text)
+    explanation = explain_prediction(model, cleaned)
+
+    source_score = (
+        get_source_score(source_url) if source_url else None
+    )
 
     return {
-        "prediction": prediction,
-        "confidence": confidence,
+        "prediction": label,
+        "confidence": round(confidence, 4),
         "credibility_score": credibility,
-        "source_score": src_score,
+        "source_score": source_score,
         "explanation": explanation,
-        "block_hash": block.hash
     }

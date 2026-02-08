@@ -24,7 +24,6 @@ __pycache__/
 
 # Trained models
 *.pkl
-backend/app/models/
 
 # Runtime data
 backend/app/blockchain/ledger.json

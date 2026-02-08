@@ -1,0 +1,8 @@
+{
+  "current_model": "model_v2.pkl",
+  "model_type": "LogisticRegression",
+  "vectorizer": "TF-IDF",
+  "trained_on": "ISOT + Kaggle Fake News Dataset",
+  "last_trained": "2026-02-05",
+  "notes": "Retrained with feedback-ready pipeline and explainability enabled"
+}
