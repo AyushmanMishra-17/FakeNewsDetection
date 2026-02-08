@@ -1,59 +1,61 @@
 import os
-import json
 import joblib
 import requests
-
-from app.services.explainability import explain_prediction
+import json
 from app.services.credibility import calculate_credibility
-from app.services.source_credibility import source_score
-from app.utils.preprocess import preprocess_text
+from app.services.source_credibility import get_source_score
 
-MODEL_DIR = "models"
-MODEL_PATH = f"{MODEL_DIR}/model.pkl"
-META_PATH = f"{MODEL_DIR}/metadata.json"
+MODEL_URL = os.getenv(
+    "MODEL_URL",
+    "https://huggingface.co/AyushmanMishra/fake-news-classifier-tfidf/resolve/main/model.pkl"
+)
 
-# 🔗 Replace this with your actual model URL later
-MODEL_URL = "https://YOUR_MODEL_HOST_URL/model.pkl"
+META_URL = os.getenv(
+    "META_URL",
+    "https://huggingface.co/AyushmanMishra/fake-news-classifier-tfidf/resolve/main/metadata.json"
+)
 
-os.makedirs(MODEL_DIR, exist_ok=True)
+MODEL_CACHE = "/tmp/model.pkl"
+META_CACHE = "/tmp/metadata.json"
 
-def download_model():
-    if not os.path.exists(MODEL_PATH):
-        print("⬇️ Downloading ML model...")
-        r = requests.get(MODEL_URL, stream=True)
-        with open(MODEL_PATH, "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-        print("✅ Model downloaded")
+_model = None
+_meta = None
 
-download_model()
 
-model = joblib.load(MODEL_PATH)
+def load_model():
+    global _model, _meta
 
-# Metadata fallback (safe)
-if os.path.exists(META_PATH):
-    with open(META_PATH) as f:
-        metadata = json.load(f)
-else:
-    metadata = {"version": "cloud"}
+    if _model is None:
+        r = requests.get(MODEL_URL)
+        with open(MODEL_CACHE, "wb") as f:
+            f.write(r.content)
+        _model = joblib.load(MODEL_CACHE)
 
-def predict_news(text: str, source_url: str | None = None):
-    clean = preprocess_text(text)
-    pred = model.predict([clean])[0]
-    prob = model.predict_proba([clean])[0].max() * 100
+    if _meta is None:
+        r = requests.get(META_URL)
+        with open(META_CACHE, "wb") as f:
+            f.write(r.content)
+        with open(META_CACHE) as f:
+            _meta = json.load(f)
 
-    label = "Real" if pred == 1 else "Fake"
+    return _model, _meta
 
-    credibility = calculate_credibility(prob, label)
-    explanation = explain_prediction(model, clean)
 
-    source = source_score(source_url) if source_url else None
+def predict_news(text, source_url=None):
+    model, meta = load_model()
+
+    prob = model.predict_proba([text])[0]
+    pred_idx = prob.argmax()
+    prediction = meta["labels"][pred_idx]
+    confidence = round(prob[pred_idx] * 100, 2)
+
+    credibility = calculate_credibility(confidence, prediction)
+    source_score = get_source_score(source_url) if source_url else None
 
     return {
-        "prediction": label,
-        "confidence": round(prob, 2),
+        "prediction": prediction,
+        "confidence": confidence,
         "credibility_score": credibility,
-        "source_score": source,
-        "explanation": explanation,
-        "model_version": metadata.get("version", "unknown")
+        "source_score": source_score,
+        "model": meta["model_name"]
     }
