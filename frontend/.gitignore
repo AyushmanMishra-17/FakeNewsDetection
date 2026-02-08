@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ML Models
+app/models/*.pkl
+app/models/*.pt
+app/models/*.bin
+
+# Python cache
+__pycache__/
+*.pyc
