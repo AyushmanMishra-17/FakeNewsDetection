@@ -10,3 +10,5 @@ python-multipart
 beautifulsoup4
 lxml
 requests
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.1.2+cpu
